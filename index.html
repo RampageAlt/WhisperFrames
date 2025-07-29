@@ -184,7 +184,6 @@
   const data = await response.json();
   const downloadURL = data.secure_url;
 
-  const key = currentUser + "_" + today;
   storage[key] = downloadURL; // 🔁 Save Cloudinary URL instead of base64
   saveStorage();
   updateStreak();
