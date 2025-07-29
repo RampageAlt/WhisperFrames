@@ -108,11 +108,6 @@
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- Firebase SDKs (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <img class="logo" src="https://cdn-icons-png.flaticon.com/512/2589/2589175.png" alt="Peach Heart Logo">
@@ -127,7 +122,7 @@
     <div class="user-indicator" id="userIndicator"></div>
     <div id="otherUserSection">
       <p><strong>Their moment today:</strong></p>
-      <img id="otherImage" class="uploaded" src="nofilehing.png" alt="No photo yet" />
+      <img id="otherImage" class="uploaded" src=""C:\Users\neals\OneDrive\Pictures\nofilehing.png"" alt="No photo yet" />
       <a id="downloadBtn" class="hidden" download="shared-photo.jpg"><button class="save-btn">Save to Gallery</button></a>
     </div>
     <p class="streak">Streak: <span id="streakCount">0</span> days</p>
@@ -139,22 +134,14 @@
   </div>
 
   <script>
-    // Your Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyAaGY0d1ClJ4QE0Q4lv0ITJ7RWKDsuiht0",
-      authDomain: "whisperframes-3c792.firebaseapp.com",
-      projectId: "whisperframes-3c792",
-      storageBucket: "whisperframes-3c792.appspot.com",
-      messagingSenderId: "120299589778",
-      appId: "1:120299589778:web:d185d4019e2013b81a564b"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const storageRef = firebase.storage().ref();
-    const db = firebase.firestore();
-
     let currentUser = "";
-    const today = new Date().toLocaleDateString();
+    let today = new Date().toLocaleDateString();
+    let storage = JSON.parse(localStorage.getItem("sharedImages") || "{}");
     let streak = { N: 0, M: 0 };
+
+    function saveStorage() {
+      localStorage.setItem("sharedImages", JSON.stringify(storage));
+    }
 
     function checkPassword() {
       const pw = document.getElementById('password').value;
@@ -177,49 +164,61 @@
       loadStreak();
     }
 
-    async function uploadImage(event) {
-      const file = event.target.files[0]; if (!file) return;
-      const key = `${currentUser}_${today}.jpg`;
-      const imageRef = storageRef.child(`images/${key}`);
-      await imageRef.put(file);
-      const url = await imageRef.getDownloadURL();
-      await db.collection('sharedImages').doc(key).set({ url });
-      updateStreak(); loadOtherImage();
+    function uploadImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const key = currentUser + "_" + today;
+        storage[key] = e.target.result;
+        saveStorage();
+        updateStreak();
+        loadOtherImage();
+      };
+      reader.readAsDataURL(file);
     }
 
-    async function loadOtherImage() {
+    function loadOtherImage() {
       const otherUser = currentUser === "N" ? "M" : "N";
-      const key = ${otherUser}_${today}.jpg;
-      const doc = await db.collection('sharedImages').doc(key).get();
+      const key = otherUser + "_" + today;
+      const imageData = storage[key];
       const img = document.getElementById("otherImage");
-      const btn = document.getElementById("downloadBtn");
-      if (doc.exists) {
-        const url = doc.data().url;
-        img.src = url; btn.href = url; btn.classList.remove("hidden");
+      const downloadBtn = document.getElementById("downloadBtn");
+      if (imageData) {
+        img.src = imageData;
+        downloadBtn.href = imageData;
+        downloadBtn.classList.remove("hidden");
       } else {
-        img.src = "nofilehing.png"; btn.classList.add("hidden");
+        img.src = "nofilehing.png";
+        downloadBtn.classList.add("hidden");
       }
     }
 
     function updateStreak() {
-      const keyDate = `${currentUser}_streak_date`;
-      const last = localStorage.getItem(keyDate);
-      if (last === today) return;
-      const y = new Date(); y.setDate(y.getDate()-1);
-      const yDate = y.toLocaleDateString();
-      const streakKey = `${currentUser}_streak`;
-      const count = last === yDate ? (parseInt(localStorage.getItem(streakKey))||0)+1 : 1;
-      localStorage.setItem(keyDate, today);
-      localStorage.setItem(streakKey, count);
+      const key = currentUser + "_streak_date";
+      const lastDate = localStorage.getItem(key);
+      if (lastDate === today) return;
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yDate = yesterday.toLocaleDateString();
+      if (lastDate === yDate) {
+        streak[currentUser] = (parseInt(localStorage.getItem(currentUser + "_streak")) || 0) + 1;
+      } else {
+        streak[currentUser] = 1;
+      }
+      localStorage.setItem(currentUser + "_streak_date", today);
+      localStorage.setItem(currentUser + "_streak", streak[currentUser]);
       loadStreak();
     }
 
     function loadStreak() {
-      const count = parseInt(localStorage.getItem(`${currentUser}_streak`))||0;
+      const count = parseInt(localStorage.getItem(currentUser + "_streak")) || 0;
       document.getElementById("streakCount").innerText = count;
     }
 
-    function resetApp() { location.reload(); }
+    function resetApp() {
+      location.reload();
+    }
   </script>
 </body>
 </html>
