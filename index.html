@@ -122,7 +122,7 @@
     <div class="user-indicator" id="userIndicator"></div>
     <div id="otherUserSection">
       <p><strong>Their moment today:</strong></p>
-      <img id="otherImage" class="uploaded" src=""C:\Users\neals\OneDrive\Pictures\nofilehing.png"" alt="No photo yet" />
+      <img id="otherImage" class="uploaded" src="C:\Users\neals\OneDrive\Pictures\nofilehing.png" alt="No photo yet" />
       <a id="downloadBtn" class="hidden" download="shared-photo.jpg"><button class="save-btn">Save to Gallery</button></a>
     </div>
     <p class="streak">Streak: <span id="streakCount">0</span> days</p>
@@ -170,7 +170,11 @@
 
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "WhisperFrames"); // from Cloudinary
+  const key = currentUser + "_" + today;
+
+  formData.append("upload_preset", "WhisperFrames");
+  formData.append("public_id", key);
+  formData.append("overwrite", "true");
 
   const response = await fetch("https://api.cloudinary.com/v1_1/dn678kfox/image/upload", {
     method: "POST",
@@ -199,7 +203,7 @@
         downloadBtn.href = imageData;
         downloadBtn.classList.remove("hidden");
       } else {
-        img.src = "https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/v1690000000/nofilehing.png";
+        img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
 
         downloadBtn.classList.add("hidden");
       }
