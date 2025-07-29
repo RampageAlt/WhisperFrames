@@ -132,9 +132,9 @@
     </div>
     <p class="streak">Streak: <span id="streakCount">0</span> days</p>
     <div class="button-group">
-      <input type="file" accept="image/*" capture="environment" id="upload" onchange="uploadImage(event)" class="hidden" />
-      <button onclick="document.getElementById('upload').click()">Upload Photo</button>
-      <button onclick="resetApp()">Log Out</button>
+      <input type="file" accept="image/*" id="upload" onchange="uploadImage(event)" class="hidden" />
+      <button type="button" onclick="triggerUpload()">Upload Photo</button>
+      <button type="button" onclick="resetApp()">Log Out</button>
     </div>
   </div>
 
@@ -175,6 +175,13 @@
       document.getElementById("userIndicator").innerText = `You are logged in as: ${currentUser}`;
       loadOtherImage();
       loadStreak();
+    }
+
+    function triggerUpload() {
+      const inp = document.getElementById('upload');
+      inp.classList.remove('hidden');
+      inp.click();
+      inp.classList.add('hidden');
     }
 
     async function uploadImage(event) {
@@ -223,3 +230,4 @@
   </script>
 </body>
 </html>
+
