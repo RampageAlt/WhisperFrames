@@ -132,11 +132,11 @@
         const pw = document.getElementById('password').value;
         if (pw === "1451") {
           currentUser = "N";
-          document.body.style.backgroundColor = "#e6f7ff"; // pastel blue
+          document.body.style.backgroundColor = "#e6f7ff";
           startApp();
         } else if (pw === "1024") {
           currentUser = "M";
-          document.body.style.backgroundColor = "#ffeef2"; // baby pink
+          document.body.style.backgroundColor = "#ffeef2";
           startApp();
         } else {
           alert("Wrong password");
@@ -171,7 +171,7 @@
           const data = await response.json();
           if (data.secure_url) {
             updateStreak();
-            loadOtherImage();
+            loadOtherImage(true); // force reload after upload
           } else {
             alert("Upload failed.");
           }
@@ -180,30 +180,27 @@
         }
       }
 
-      function loadOtherImage() {
-  const otherUser = currentUser === "N" ? "M" : "N";
-  const key = `${otherUser}_${today.replace(/\//g, '-')}`;
-  const cloudName = "dn678kfox";
-  
-  // Use auto format so Cloudinary resolves correct extension (no .jpg needed)
-  const url = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key}`;
+      function loadOtherImage(forceRefresh = false) {
+        const otherUser = currentUser === "N" ? "M" : "N";
+        const key = `${otherUser}_${today.replace(/\//g, '-')}`;
+        const cloudName = "dn678kfox";
+        const url = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key}`;
 
-  const img = document.getElementById("otherImage");
-  const downloadBtn = document.getElementById("downloadBtn");
+        const img = document.getElementById("otherImage");
+        const downloadBtn = document.getElementById("downloadBtn");
 
-  const tester = new Image();
-  tester.onload = function () {
-    img.src = url;
-    downloadBtn.href = url;
-    downloadBtn.classList.remove("hidden");
-  };
-  tester.onerror = function () {
-    img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
-    downloadBtn.classList.add("hidden");
-  };
-  tester.src = url;
-}
-
+        const tester = new Image();
+        tester.onload = function () {
+          img.src = url + (forceRefresh ? `?t=${Date.now()}` : "");
+          downloadBtn.href = img.src;
+          downloadBtn.classList.remove("hidden");
+        };
+        tester.onerror = function () {
+          img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
+          downloadBtn.classList.add("hidden");
+        };
+        tester.src = url + (forceRefresh ? `?t=${Date.now()}` : "");
+      }
 
       function updateStreak() {
         const key = currentUser + "_streak_date";
@@ -240,6 +237,7 @@
   </script>
 </body>
 </html>
+
 
 
 
