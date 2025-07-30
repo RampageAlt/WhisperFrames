@@ -9,7 +9,7 @@
       margin: 0;
       font-family: 'Quicksand', sans-serif;
       background-color: #ffeef2;
-      background-image: url('hearts.jpg'); /* Placeholder background image */
+      background-image: url('hearts.jpg');
       background-repeat: repeat;
       background-size: cover;
       color: #333;
@@ -20,18 +20,15 @@
       min-height: 100vh;
       padding: 20px;
     }
-
     h1 {
       font-size: 2em;
       color: #ff89a9;
       margin-top: 10px;
     }
-
     .logo {
       width: 50px;
       height: 50px;
     }
-
     .container {
       background: white;
       border-radius: 15px;
@@ -41,7 +38,6 @@
       max-width: 400px;
       text-align: center;
     }
-
     input[type="password"],
     input[type="file"] {
       padding: 10px;
@@ -50,7 +46,6 @@
       border-radius: 10px;
       border: 1px solid #ccc;
     }
-
     .button-group {
       display: flex;
       flex-direction: row;
@@ -58,7 +53,6 @@
       gap: 10px;
       margin-top: 10px;
     }
-
     button {
       padding: 12px 20px;
       background-color: #ffb6c1;
@@ -70,11 +64,9 @@
       transition: background-color 0.3s ease;
       width: 100%;
     }
-
     button:hover {
       background-color: #d94c6b;
     }
-
     img.uploaded {
       width: 100%;
       max-height: 300px;
@@ -82,25 +74,20 @@
       border-radius: 10px;
       margin-top: 10px;
     }
-
     .hidden {
       display: none;
     }
-
     .save-btn {
       background-color: #ff9da2;
     }
-
     .save-btn:hover {
       background-color: #d94c6b;
     }
-
     .streak {
       margin-top: 10px;
       font-weight: bold;
       color: #ff69b4;
     }
-
     .user-indicator {
       font-size: 0.9em;
       color: #888;
@@ -122,7 +109,7 @@
     <div class="user-indicator" id="userIndicator"></div>
     <div id="otherUserSection">
       <p><strong>Their moment today:</strong></p>
-      <img id="otherImage" class="uploaded" src="C:\Users\neals\OneDrive\Pictures\nofilehing.png" alt="No photo yet" />
+      <img id="otherImage" class="uploaded" src="https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png" alt="No photo yet" />
       <a id="downloadBtn" class="hidden" download="shared-photo.jpg"><button class="save-btn">Save to Gallery</button></a>
     </div>
     <p class="streak">Streak: <span id="streakCount">0</span> days</p>
@@ -136,12 +123,7 @@
   <script>
     let currentUser = "";
     let today = new Date().toLocaleDateString();
-    let storage = JSON.parse(localStorage.getItem("sharedImages") || "{}");
     let streak = { N: 0, M: 0 };
-
-    function saveStorage() {
-      localStorage.setItem("sharedImages", JSON.stringify(storage));
-    }
 
     function checkPassword() {
       const pw = document.getElementById('password').value;
@@ -159,53 +141,60 @@
     function startApp() {
       document.getElementById("login").classList.add("hidden");
       document.getElementById("main").classList.remove("hidden");
-      document.getElementById("userIndicator").innerText = `You are logged in as: ${currentUser}`;
+      document.getElementById("userIndicator").innerText = You are logged in as: ${currentUser};
       loadOtherImage();
       loadStreak();
     }
 
     async function uploadImage(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+      const file = event.target.files[0];
+      if (!file) return;
 
-  const formData = new FormData();
-  formData.append("file", file);
-  const key = currentUser + "_" + today;
+      const key = currentUser + "_" + today + ".jpg";
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "WhisperFrames"); // Your unsigned preset name
+      formData.append("public_id", key);
+      formData.append("overwrite", "true");
 
-  formData.append("upload_preset", "WhisperFrames");
-  formData.append("public_id", key);
-  formData.append("overwrite", "true");
+      try {
+        const response = await fetch("https://api.cloudinary.com/v1_1/dn678kfox/image/upload", {
+          method: "POST",
+          body: formData
+        });
 
-  const response = await fetch("https://api.cloudinary.com/v1_1/dn678kfox/image/upload", {
-    method: "POST",
-    body: formData
-  });
-
-  const data = await response.json();
-  const downloadURL = data.secure_url;
-
-  storage[key] = downloadURL; // 🔁 Save Cloudinary URL instead of base64
-  saveStorage();
-  updateStreak();
-  loadOtherImage();
-}
-
+        const data = await response.json();
+        if (data.secure_url) {
+          updateStreak();
+          loadOtherImage(); // Other user will see the new image
+        } else {
+          alert("Upload failed. Try again.");
+        }
+      } catch (err) {
+        alert("Upload failed: " + err.message);
+      }
+    }
 
     function loadOtherImage() {
       const otherUser = currentUser === "N" ? "M" : "N";
-      const key = otherUser + "_" + today;
-      const imageData = storage[key];
+      const key = otherUser + "_" + today + ".jpg";
+      const cloudName = "dn678kfox";
+      const url = https://res.cloudinary.com/${cloudName}/image/upload/${key};
+
       const img = document.getElementById("otherImage");
       const downloadBtn = document.getElementById("downloadBtn");
-      if (imageData) {
-        img.src = imageData;
-        downloadBtn.href = imageData;
-        downloadBtn.classList.remove("hidden");
-      } else {
-        img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
 
+      img.onload = () => {
+        downloadBtn.href = url;
+        downloadBtn.classList.remove("hidden");
+      };
+
+      img.onerror = () => {
+        img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
         downloadBtn.classList.add("hidden");
-      }
+      };
+
+      img.src = url;
     }
 
     function updateStreak() {
