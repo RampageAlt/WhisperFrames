@@ -2,54 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WhisperFrames</title>
   <style>
     body {
       margin: 0;
       font-family: 'Quicksand', sans-serif;
-      background-color: #ffeef2;
+      background-image: url('hearts.jpg');
+      background-repeat: repeat;
+      background-size: cover;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+      transition: background-color 0.3s ease;
+    }
+    h1 {
+      font-size: 2em;
+      color: #ff89a9;
+      margin-top: 10px;
+    }
+    .logo {
+      width: 50px;
+      height: 50px;
+    }
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
       text-align: center;
     }
-    #login {
-      padding: 40px;
+    input[type="password"],
+    input[type="file"] {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ccc;
     }
-    #main {
+    .button-group {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button {
+      padding: 12px 20px;
+      background-color: #ffb6c1;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #d94c6b;
+    }
+    img.uploaded {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .hidden {
       display: none;
-      padding: 20px;
     }
-    img {
-      max-width: 90%;
-      margin: 10px auto;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+    .save-btn {
+      background-color: #ff9da2;
     }
-    .username-N {
-      background-color: #d0ecff; /* pastel blue */
+    .save-btn:hover {
+      background-color: #d94c6b;
     }
-    .username-M {
-      background-color: #ffd6e8; /* baby pink */
+    .streak {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #ff69b4;
+    }
+    .user-indicator {
+      font-size: 0.9em;
+      color: #888;
+      margin-bottom: 10px;
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="login">
-    <h1>WhisperFrames</h1>
-    <input id="password" type="password" placeholder="Enter password" />
-    <button id="loginBtn">Login</button>
+  <img class="logo" src="https://cdn-icons-png.flaticon.com/512/2589/2589175.png" alt="Peach Heart Logo">
+  <h1>WhisperFrames</h1>
+  <div class="container" id="login">
+    <p>Enter your secret code</p>
+    <input type="password" id="password" placeholder="Enter password" />
+    <button id="loginBtn">Enter</button>
   </div>
 
-  <div id="main">
-    <h2 id="greeting"></h2>
-    <input type="file" id="upload" accept="image/*" />
-    <button id="saveBtn">Save to Gallery</button>
-    <div>
-      <h3>Your Image</h3>
-      <img id="userImage" />
+  <div class="container hidden" id="main">
+    <div class="user-indicator" id="userIndicator"></div>
+    <div id="otherUserSection">
+      <p><strong>Their moment today:</strong></p>
+      <img id="otherImage" class="uploaded" src="https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png" alt="No photo yet" />
+      <a id="downloadBtn" class="hidden" download="shared-photo.jpg">
+        <button class="save-btn" id="saveBtn">Save to Gallery</button>
+      </a>
     </div>
-    <div>
-      <h3>Their Image</h3>
-      <img id="otherImage" />
+    <p class="streak">Streak: <span id="streakCount">0</span> days</p>
+    <div class="button-group">
+      <input type="file" accept="image/*" capture="environment" id="upload" onchange="uploadImage(event)" class="hidden" />
+      <button onclick="document.getElementById('upload').click()">Upload Photo</button>
+      <button onclick="resetApp()">Log Out</button>
     </div>
   </div>
 
@@ -60,6 +129,7 @@
 
       document.getElementById('loginBtn').onclick = checkPassword;
       document.getElementById('saveBtn').onclick = () => {
+        // Refresh the image again after save click, just to ensure it reloads
         loadOtherImage(true);
       };
 
@@ -68,71 +138,119 @@
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return ${year}-${month}-${day};
       }
 
       function checkPassword() {
-        const pw = document.getElementById('password').value.trim();
-        if (pw === 'N' || pw === 'M') {
-          currentUser = pw;
-          document.body.classList.add(`username-${pw}`);
-          document.getElementById('login').style.display = 'none';
-          document.getElementById('main').style.display = 'block';
-          document.getElementById('greeting').innerText = `Hello ${pw}!`;
-          loadOwnImage();
-          loadOtherImage(true);
+        const pw = document.getElementById('password').value;
+        if (pw === "1451") {
+          currentUser = "N";
+          document.body.style.backgroundColor = "#e6f7ff";
+          startApp();
+        } else if (pw === "1024") {
+          currentUser = "M";
+          document.body.style.backgroundColor = "#ffeef2";
+          startApp();
         } else {
-          alert("Incorrect password");
+          alert("Wrong password");
         }
       }
 
-      async function loadOwnImage() {
-        const date = getToday();
-        const publicId = `${currentUser}_${date}`;
-        const url = `https://res.cloudinary.com/dn678kfox/image/upload/${publicId}.jpg`;
-        document.getElementById('userImage').src = url;
+      function startApp() {
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("main").classList.remove("hidden");
+        document.getElementById("userIndicator").innerText = You are logged in as: ${currentUser};
+        loadOtherImage();
+        loadStreak();
       }
 
-      async function loadOtherImage(forceRefresh = false) {
-        const date = getToday();
-        const otherUser = currentUser === 'N' ? 'M' : 'N';
-        const base = `https://res.cloudinary.com/dn678kfox/image/upload/${otherUser}_${date}.jpg`;
-        const url = `${base}?t=${Date.now()}`; // cache busting always
-        document.getElementById('otherImage').src = url;
-      }
-
-      document.getElementById('upload').addEventListener('change', async (e) => {
-        const file = e.target.files[0];
+      async function uploadImage(event) {
+        const file = event.target.files[0];
         if (!file) return;
 
+        const today = getToday();
+        const key = ${currentUser}_${today};
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', 'unsigned');
-        const date = getToday();
-        const publicId = `${currentUser}_${date}`;
-
-        formData.append('public_id', publicId);
+        formData.append("file", file);
+        formData.append("public_id", key);
 
         try {
-          const res = await fetch('https://api.cloudinary.com/v1_1/dn678kfox/image/upload', {
-            method: 'POST',
+          const response = await fetch("https://whisperframesbackend.onrender.com/upload", {
+            method: "POST",
             body: formData
           });
-          const data = await res.json();
+
+          if (!response.ok) throw new Error("Upload failed");
+
+          const data = await response.json();
           if (data.secure_url) {
-            loadOwnImage();
-            alert("Image uploaded successfully!");
+            updateStreak();
+            loadOtherImage(true);
           } else {
-            console.error(data);
             alert("Upload failed.");
           }
         } catch (err) {
-          console.error(err);
-          alert("Upload failed.");
+          alert("Upload failed: " + err.message);
         }
-      });
+      }
+
+      function loadOtherImage(forceRefresh = false) {
+        const today = getToday();
+        const otherUser = currentUser === "N" ? "M" : "N";
+        const key = ${otherUser}_${today};
+        const cloudName = "dn678kfox";
+        const base = https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key};
+        const url = forceRefresh ? ${base}?t=${Date.now()} : base;
+
+        const img = document.getElementById("otherImage");
+        const downloadBtn = document.getElementById("downloadBtn");
+
+        const tester = new Image();
+        tester.onload = function () {
+          img.src = url;
+          downloadBtn.href = url;
+          downloadBtn.classList.remove("hidden");
+        };
+        tester.onerror = function () {
+          img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
+          downloadBtn.classList.add("hidden");
+        };
+        tester.src = url;
+      }
+
+      function updateStreak() {
+        const today = getToday();
+        const key = currentUser + "_streak_date";
+        const lastDate = localStorage.getItem(key);
+        if (lastDate === today) return;
+
+        const y = new Date();
+        y.setDate(y.getDate() - 1);
+        const yDate = ${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')};
+
+        if (lastDate === yDate) {
+          streak[currentUser] = (parseInt(localStorage.getItem(currentUser + "_streak")) || 0) + 1;
+        } else {
+          streak[currentUser] = 1;
+        }
+
+        localStorage.setItem(currentUser + "_streak_date", today);
+        localStorage.setItem(currentUser + "_streak", streak[currentUser]);
+        loadStreak();
+      }
+
+      function loadStreak() {
+        const count = parseInt(localStorage.getItem(currentUser + "_streak")) || 0;
+        document.getElementById("streakCount").innerText = count;
+      }
+
+      function resetApp() {
+        location.reload();
+      }
+
+      window.uploadImage = uploadImage;
+      window.resetApp = resetApp;
     };
   </script>
 </body>
 </html>
-
