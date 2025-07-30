@@ -110,7 +110,9 @@
     <div id="otherUserSection">
       <p><strong>Their moment today:</strong></p>
       <img id="otherImage" class="uploaded" src="https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png" alt="No photo yet" />
-      <a id="downloadBtn" class="hidden" download="shared-photo.jpg"><button class="save-btn">Save to Gallery</button></a>
+      <a id="downloadBtn" class="hidden" download="shared-photo.jpg">
+        <button class="save-btn" id="saveBtn">Save to Gallery</button>
+      </a>
     </div>
     <p class="streak">Streak: <span id="streakCount">0</span> days</p>
     <div class="button-group">
@@ -126,6 +128,10 @@
       const streak = { N: 0, M: 0 };
 
       document.getElementById('loginBtn').onclick = checkPassword;
+      document.getElementById('saveBtn').onclick = () => {
+        // Refresh the image again after save click, just to ensure it reloads
+        loadOtherImage(true);
+      };
 
       function getToday() {
         const d = new Date();
@@ -248,3 +254,4 @@
   </script>
 </body>
 </html>
+
