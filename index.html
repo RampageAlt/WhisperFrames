@@ -181,26 +181,29 @@
       }
 
       function loadOtherImage() {
-        const otherUser = currentUser === "N" ? "M" : "N";
-        const key = `${otherUser}_${today.replace(/\//g, '-')}`;
-        const cloudName = "dn678kfox";
-        const url = `https://res.cloudinary.com/${cloudName}/image/upload/${key}.jpg`;
+  const otherUser = currentUser === "N" ? "M" : "N";
+  const key = `${otherUser}_${today.replace(/\//g, '-')}`;
+  const cloudName = "dn678kfox";
+  
+  // Use auto format so Cloudinary resolves correct extension (no .jpg needed)
+  const url = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key}`;
 
-        const img = document.getElementById("otherImage");
-        const downloadBtn = document.getElementById("downloadBtn");
+  const img = document.getElementById("otherImage");
+  const downloadBtn = document.getElementById("downloadBtn");
 
-        const tester = new Image();
-        tester.onload = function () {
-          img.src = url;
-          downloadBtn.href = url;
-          downloadBtn.classList.remove("hidden");
-        };
-        tester.onerror = function () {
-          img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
-          downloadBtn.classList.add("hidden");
-        };
-        tester.src = url;
-      }
+  const tester = new Image();
+  tester.onload = function () {
+    img.src = url;
+    downloadBtn.href = url;
+    downloadBtn.classList.remove("hidden");
+  };
+  tester.onerror = function () {
+    img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
+    downloadBtn.classList.add("hidden");
+  };
+  tester.src = url;
+}
+
 
       function updateStreak() {
         const key = currentUser + "_streak_date";
