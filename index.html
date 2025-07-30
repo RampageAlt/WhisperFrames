@@ -138,7 +138,7 @@
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
-        return ${year}-${month}-${day};
+        return `${year}-${month}-${day}`;
       }
 
       function checkPassword() {
@@ -159,7 +159,7 @@
       function startApp() {
         document.getElementById("login").classList.add("hidden");
         document.getElementById("main").classList.remove("hidden");
-        document.getElementById("userIndicator").innerText = You are logged in as: ${currentUser};
+        document.getElementById("userIndicator").innerText = `You are logged in as: ${currentUser}`;
         loadOtherImage();
         loadStreak();
       }
@@ -169,7 +169,7 @@
         if (!file) return;
 
         const today = getToday();
-        const key = ${currentUser}_${today};
+        const key = `${currentUser}_${today}`;
         const formData = new FormData();
         formData.append("file", file);
         formData.append("public_id", key);
@@ -197,10 +197,10 @@
       function loadOtherImage(forceRefresh = false) {
         const today = getToday();
         const otherUser = currentUser === "N" ? "M" : "N";
-        const key = ${otherUser}_${today};
+        const key = `${otherUser}_${today}`;
         const cloudName = "dn678kfox";
-        const base = https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key};
-        const url = forceRefresh ? ${base}?t=${Date.now()} : base;
+        const base = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key}`;
+        const url = forceRefresh ? `${base}?t=${Date.now()}` : base;
 
         const img = document.getElementById("otherImage");
         const downloadBtn = document.getElementById("downloadBtn");
@@ -226,7 +226,7 @@
 
         const y = new Date();
         y.setDate(y.getDate() - 1);
-        const yDate = ${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')};
+        const yDate = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
 
         if (lastDate === yDate) {
           streak[currentUser] = (parseInt(localStorage.getItem(currentUser + "_streak")) || 0) + 1;
@@ -254,3 +254,4 @@
   </script>
 </body>
 </html>
+
