@@ -102,7 +102,7 @@
   <div class="container" id="login">
     <p>Enter your secret code</p>
     <input type="password" id="password" placeholder="Enter password" />
-    <button onclick="checkPassword()">Enter</button>
+    <button id="loginBtn">Enter</button>
   </div>
 
   <div class="container hidden" id="main">
@@ -121,107 +121,117 @@
   </div>
 
   <script>
-    let currentUser = "";
-    let today = new Date().toLocaleDateString();
-    let streak = { N: 0, M: 0 };
+    window.onload = () => {
+      let currentUser = "";
+      let today = new Date().toLocaleDateString();
+      let streak = { N: 0, M: 0 };
 
-    function checkPassword() {
-      const pw = document.getElementById('password').value;
-      if (pw === "1451") {
-        currentUser = "N";
-        startApp();
-      } else if (pw === "1024") {
-        currentUser = "M";
-        startApp();
-      } else {
-        alert("Wrong password");
-      }
-    }
+      document.getElementById('loginBtn').onclick = checkPassword;
 
-    function startApp() {
-      document.getElementById("login").classList.add("hidden");
-      document.getElementById("main").classList.remove("hidden");
-      document.getElementById("userIndicator").innerText = You are logged in as: ${currentUser};
-      loadOtherImage();
-      loadStreak();
-    }
-
-    async function uploadImage(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const key = currentUser + "_" + today + ".jpg";
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "WhisperFrames"); // Your unsigned preset name
-      formData.append("public_id", key);
-      formData.append("overwrite", "true");
-
-      try {
-        const response = await fetch("https://api.cloudinary.com/v1_1/dn678kfox/image/upload", {
-          method: "POST",
-          body: formData
-        });
-
-        const data = await response.json();
-        if (data.secure_url) {
-          updateStreak();
-          loadOtherImage(); // Other user will see the new image
+      function checkPassword() {
+        const pw = document.getElementById('password').value;
+        if (pw === "1451") {
+          currentUser = "N";
+          startApp();
+        } else if (pw === "1024") {
+          currentUser = "M";
+          startApp();
         } else {
-          alert("Upload failed. Try again.");
+          alert("Wrong password");
         }
-      } catch (err) {
-        alert("Upload failed: " + err.message);
       }
-    }
 
-    function loadOtherImage() {
-      const otherUser = currentUser === "N" ? "M" : "N";
-      const key = otherUser + "_" + today + ".jpg";
-      const cloudName = "dn678kfox";
-      const url = https://res.cloudinary.com/${cloudName}/image/upload/${key};
-
-      const img = document.getElementById("otherImage");
-      const downloadBtn = document.getElementById("downloadBtn");
-
-      img.onload = () => {
-        downloadBtn.href = url;
-        downloadBtn.classList.remove("hidden");
-      };
-
-      img.onerror = () => {
-        img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
-        downloadBtn.classList.add("hidden");
-      };
-
-      img.src = url;
-    }
-
-    function updateStreak() {
-      const key = currentUser + "_streak_date";
-      const lastDate = localStorage.getItem(key);
-      if (lastDate === today) return;
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yDate = yesterday.toLocaleDateString();
-      if (lastDate === yDate) {
-        streak[currentUser] = (parseInt(localStorage.getItem(currentUser + "_streak")) || 0) + 1;
-      } else {
-        streak[currentUser] = 1;
+      function startApp() {
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("main").classList.remove("hidden");
+        document.getElementById("userIndicator").innerText = `You are logged in as: ${currentUser}`;
+        loadOtherImage();
+        loadStreak();
       }
-      localStorage.setItem(currentUser + "_streak_date", today);
-      localStorage.setItem(currentUser + "_streak", streak[currentUser]);
-      loadStreak();
-    }
 
-    function loadStreak() {
-      const count = parseInt(localStorage.getItem(currentUser + "_streak")) || 0;
-      document.getElementById("streakCount").innerText = count;
-    }
+      async function uploadImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-    function resetApp() {
-      location.reload();
-    }
+        const key = `${currentUser}_${today.replace(/\//g, '-')}.jpg`;
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "WhisperFrames");
+        formData.append("public_id", key);
+        formData.append("overwrite", "true");
+
+        try {
+          const response = await fetch("https://api.cloudinary.com/v1_1/dn678kfox/image/upload", {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await response.json();
+          if (data.secure_url) {
+            updateStreak();
+            loadOtherImage(); // Will reload the other image immediately
+          } else {
+            alert("Upload failed. Try again.");
+          }
+        } catch (err) {
+          alert("Upload failed: " + err.message);
+        }
+      }
+
+      function loadOtherImage() {
+        const otherUser = currentUser === "N" ? "M" : "N";
+        const key = `${otherUser}_${today.replace(/\//g, '-')}.jpg`;
+        const cloudName = "dn678kfox";
+        const url = `https://res.cloudinary.com/${cloudName}/image/upload/${key}`;
+
+        const img = document.getElementById("otherImage");
+        const downloadBtn = document.getElementById("downloadBtn");
+
+        img.onload = () => {
+          downloadBtn.href = url;
+          downloadBtn.classList.remove("hidden");
+        };
+
+        img.onerror = () => {
+          img.src = "https://res.cloudinary.com/dn678kfox/image/upload/v1690000000/nofilehing.png";
+          downloadBtn.classList.add("hidden");
+        };
+
+        img.src = url;
+      }
+
+      function updateStreak() {
+        const key = currentUser + "_streak_date";
+        const lastDate = localStorage.getItem(key);
+        if (lastDate === today) return;
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yDate = yesterday.toLocaleDateString();
+        if (lastDate === yDate) {
+          streak[currentUser] = (parseInt(localStorage.getItem(currentUser + "_streak")) || 0) + 1;
+        } else {
+          streak[currentUser] = 1;
+        }
+        localStorage.setItem(currentUser + "_streak_date", today);
+        localStorage.setItem(currentUser + "_streak", streak[currentUser]);
+        loadStreak();
+      }
+
+      function loadStreak() {
+        const count = parseInt(localStorage.getItem(currentUser + "_streak")) || 0;
+        document.getElementById("streakCount").innerText = count;
+      }
+
+      function resetApp() {
+        location.reload();
+      }
+
+      // Make uploadImage globally accessible for inline handler
+      window.uploadImage = uploadImage;
+      window.resetApp = resetApp;
+    };
   </script>
 </body>
 </html>
+
