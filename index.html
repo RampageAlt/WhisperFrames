@@ -162,7 +162,7 @@
   formData.append("public_id", key);
 
   try {
-    const response = await fetch("http://localhost:3000/upload", {
+    const response = await fetch("https://whisperframesbackend.onrender.com/", {
       method: "POST",
       body: formData
     });
