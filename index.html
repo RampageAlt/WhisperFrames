@@ -166,10 +166,10 @@
             body: formData
           });
 
-          if (!response.ok) throw new Error("Server error");
+          if (!response.ok) throw new Error("Upload failed");
 
           const data = await response.json();
-          if (data.url) {
+          if (data.secure_url) {
             updateStreak();
             loadOtherImage();
           } else {
@@ -206,14 +206,17 @@
         const key = currentUser + "_streak_date";
         const lastDate = localStorage.getItem(key);
         if (lastDate === today) return;
+
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yDate = yesterday.toLocaleDateString();
+
         if (lastDate === yDate) {
           streak[currentUser] = (parseInt(localStorage.getItem(currentUser + "_streak")) || 0) + 1;
         } else {
           streak[currentUser] = 1;
         }
+
         localStorage.setItem(currentUser + "_streak_date", today);
         localStorage.setItem(currentUser + "_streak", streak[currentUser]);
         loadStreak();
@@ -234,6 +237,7 @@
   </script>
 </body>
 </html>
+
 
 
 
