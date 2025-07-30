@@ -160,7 +160,10 @@
         document.getElementById("login").classList.add("hidden");
         document.getElementById("main").classList.remove("hidden");
         document.getElementById("userIndicator").innerText = `You are logged in as: ${currentUser}`;
-        loadOtherImage(true);
+        setTimeout(() => {
+  loadOtherImage(true);
+}, 3000); // Delay by 3 seconds
+
         loadStreak();
       }
 
