@@ -123,10 +123,17 @@
   <script>
     window.onload = () => {
       let currentUser = "";
-      const today = new Date().toLocaleDateString();
       const streak = { N: 0, M: 0 };
 
       document.getElementById('loginBtn').onclick = checkPassword;
+
+      function getToday() {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
 
       function checkPassword() {
         const pw = document.getElementById('password').value;
@@ -155,7 +162,8 @@
         const file = event.target.files[0];
         if (!file) return;
 
-        const key = `${currentUser}_${today.replace(/\//g, '-')}`;
+        const today = getToday();
+        const key = `${currentUser}_${today}`;
         const formData = new FormData();
         formData.append("file", file);
         formData.append("public_id", key);
@@ -171,7 +179,7 @@
           const data = await response.json();
           if (data.secure_url) {
             updateStreak();
-            loadOtherImage(true); // force refresh
+            loadOtherImage(true);
           } else {
             alert("Upload failed.");
           }
@@ -181,11 +189,12 @@
       }
 
       function loadOtherImage(forceRefresh = false) {
+        const today = getToday();
         const otherUser = currentUser === "N" ? "M" : "N";
-        const key = `${otherUser}_${today.replace(/\//g, '-')}`;
+        const key = `${otherUser}_${today}`;
         const cloudName = "dn678kfox";
-        const urlBase = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key}`;
-        const url = forceRefresh ? `${urlBase}?t=${Date.now()}` : urlBase;
+        const base = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${key}`;
+        const url = forceRefresh ? `${base}?t=${Date.now()}` : base;
 
         const img = document.getElementById("otherImage");
         const downloadBtn = document.getElementById("downloadBtn");
@@ -204,13 +213,14 @@
       }
 
       function updateStreak() {
+        const today = getToday();
         const key = currentUser + "_streak_date";
         const lastDate = localStorage.getItem(key);
         if (lastDate === today) return;
 
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yDate = yesterday.toLocaleDateString();
+        const y = new Date();
+        y.setDate(y.getDate() - 1);
+        const yDate = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
 
         if (lastDate === yDate) {
           streak[currentUser] = (parseInt(localStorage.getItem(currentUser + "_streak")) || 0) + 1;
@@ -238,4 +248,3 @@
   </script>
 </body>
 </html>
-
